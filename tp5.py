@@ -6,13 +6,14 @@ import pandas as pd
 from urllib.request import urlopen
 from Bio.Blast import NCBIXML
 
+
 def get_request(query_url):
     """Returns the result of a URL GET in json format with urlopen"""
-
 
     stream = urlopen(query_url)
     result = json.loads(stream.read().decode())
     return result
+
 
 # Importe le fichier au argv[1] et attrape les erreurs de filepath
 try:
@@ -22,6 +23,7 @@ except (IOError, IndexError):
     please specify filepath"""
     print(error_message, file=sys.stderr)
     exit
+
 # Établit le blast_record avec le fichier
 with open(file, "r") as file:
     blast_record = NCBIXML.read(file)
@@ -47,8 +49,8 @@ opt = ["content-type=application/json", "feature=gene"]
 species = "homo_sapiens"
 
 url_xrefs = "{}?{}".format(url, ";".join(opt)).format(
-species= species, symbol= symbol
-)
+    species=species, symbol=symbol
+    )
 
 xref = get_request(url_xrefs)
 
@@ -58,17 +60,19 @@ url = "http://rest.ensembl.org/overlap/id/{id}"
 opt = ["?content-type=application/json;feature=variation"]
 
 url_overlap = "{}{}".format(url, ";".join(opt)).format(
-    id = id,
-)
+    id=id,
+    )
 
 overlap = get_request(url_overlap)
 
-# Établir le DataFrame avec les variables nécessaire au CSV et l'imprimer au fichier
+# Établir le DataFrame avec les variables au CSV et l'imprimer au fichier
 df = pd.DataFrame.from_dict(overlap)
 
-variables = {"name":"id","chromosome":"seq_region_name","start":"start","end":"end",
-
-"alleles":"alleles", "consequence":"consequence_type", "clinical":"clinical_significance"
+variables = {
+    "name": "id", "chromosome": "seq_region_name",
+    "start": "start", "end": "end",
+    "alleles": "alleles", "consequence": "consequence_type",
+    "clinical": "clinical_significance"
 }
 
 df = df[list(variables.values())]
